@@ -1,5 +1,6 @@
 package es.cie.ADTProyectoIndividualBack.repositories;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,16 @@ public class OrdenadorRepositoryJDBC implements OrdenadorRepository {
 
     @Override
     public List<Ordenador> buscarOrdenados(String campo, String direccion) {
-        return plantilla.query("select * from ordenador order by ? ? ", new OrdenadorRowMapper(),campo,direccion);
+       List<String> validCampos = Arrays.asList("id", "nombre", "modelo", "precio"); 
+    List<String> validDirecciones = Arrays.asList("ASC", "DESC"); 
+
+    if (!validCampos.contains(campo) || !validDirecciones.contains(direccion)) {
+        throw new IllegalArgumentException("Invalid sorting parameters");
+    }
+
+    String sql = String.format("SELECT * FROM ordenador ORDER BY %s %s", campo, direccion);
+    
+    return plantilla.query(sql, new OrdenadorRowMapper()); 
     }
 
 }
